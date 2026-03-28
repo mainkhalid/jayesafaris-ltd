@@ -1,6 +1,5 @@
 import Inquiry from "../models/inquiryModel.js";
 
-// ─── Public: Submit inquiry (Contact page / PackageDetailPage) ────────────────
 export const createInquiry = async (req, res) => {
   try {
     const {
@@ -35,7 +34,6 @@ export const createInquiry = async (req, res) => {
   }
 };
 
-// ─── Admin: Get all inquiries (with optional status filter + pagination) ───────
 export const getInquiries = async (req, res) => {
   try {
     const { status, page = 1, limit = 50 } = req.query;
@@ -63,7 +61,6 @@ export const getInquiries = async (req, res) => {
   }
 };
 
-// ─── Admin: Get single inquiry ────────────────────────────────────────────────
 export const getInquiryById = async (req, res) => {
   try {
     const inquiry = await Inquiry.findById(req.params.id)

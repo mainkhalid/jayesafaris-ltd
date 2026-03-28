@@ -87,7 +87,7 @@ const ExpertCTA = () => {
                   </button>
                 </Link>
                 <a
-                  href="https://wa.me/yourphonenumber"
+                  href="https://wa.me/+254757916922"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

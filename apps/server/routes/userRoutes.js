@@ -1,126 +1,70 @@
-const express = require('express');
+import express from "express";
+import { requireAuth } from "@clerk/express";
+import { ClerkController, listUsers, updateUserRole, getUser } from "../controllers/clerkController.js";
+
 const router = express.Router();
-const { requireAuth } = require('@clerk/express');
-const ClerkController = require('../controllers/clerkController');
 
-router.get('/role', requireAuth(), async (req, res) => {
+// ─── Admin-only middleware stack ──────────────────────────────────────────────
+const adminOnly = [requireAuth(), ClerkController.requireRole("admin")];
+
+// ─── Admin routes ─────────────────────────────────────────────────────────────
+router.get(   "/",             ...adminOnly, listUsers);
+router.get(   "/:userId",      ...adminOnly, getUser);
+router.patch( "/:userId/role", ...adminOnly, updateUserRole);
+
+// ─── Current-user helpers ─────────────────────────────────────────────────────
+
+/** GET /api/users/role */
+router.get("/role", requireAuth(), async (req, res) => {
   try {
-    const userId = req.auth.userId;
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
+    const userId = req.auth?.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     const role = await ClerkController.getUserRole(userId);
-    
-    res.json({ 
-      success: true,
-      role,
-      userId 
-    });
-  } catch (error) {
-    console.error('Error fetching user role:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch user role',
-      message: error.message 
-    });
+    res.json({ success: true, role, userId });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch user role", message: err.message });
   }
 });
 
-/**
- * Get current user's profile information
- * GET /api/user/profile
- */
-router.get('/profile', requireAuth(), async (req, res) => {
+/** GET /api/users/profile */
+router.get("/profile", requireAuth(), async (req, res) => {
   try {
-    const userId = req.auth.userId;
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const role = await ClerkController.getUserRole(userId);
+    const userId = req.auth?.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    const role    = await ClerkController.getUserRole(userId);
     const isAdmin = await ClerkController.isAdmin(userId);
-    
-    res.json({ 
-      success: true,
-      userId,
-      role,
-      isAdmin
-    });
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch user profile',
-      message: error.message 
-    });
+    res.json({ success: true, userId, role, isAdmin });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch user profile", message: err.message });
   }
 });
 
-/**
- * Initialize role for new user (called on first login)
- * POST /api/user/initialize
- */
-router.post('/initialize', requireAuth(), async (req, res) => {
+/** POST /api/users/initialize */
+router.post("/initialize", requireAuth(), async (req, res) => {
   try {
-    const userId = req.auth.userId;
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    // Check if user already has a role
+    const userId = req.auth?.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     const existingRole = await ClerkController.getUserRole(userId);
-    
     if (existingRole) {
-      return res.json({ 
-        success: true,
-        message: 'User already initialized',
-        role: existingRole 
-      });
+      return res.json({ success: true, message: "User already initialized", role: existingRole });
     }
-
-    // Initialize with default role
     const result = await ClerkController.initializeUserRole(userId);
-    
-    res.json({ 
-      success: true,
-      message: 'User role initialized',
-      ...result 
-    });
-  } catch (error) {
-    console.error('Error initializing user:', error);
-    res.status(500).json({ 
-      error: 'Failed to initialize user',
-      message: error.message 
-    });
+    res.json({ success: true, message: "User role initialized", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to initialize user", message: err.message });
   }
 });
 
-/**
- * GET /api/user/is-admin
- */
-router.get('/is-admin', requireAuth(), async (req, res) => {
+/** GET /api/users/is-admin */
+router.get("/is-admin", requireAuth(), async (req, res) => {
   try {
-    const userId = req.auth.userId;
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
+    const userId = req.auth?.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     const isAdmin = await ClerkController.isAdmin(userId);
-    
-    res.json({ 
-      success: true,
-      isAdmin 
-    });
-  } catch (error) {
-    console.error('Error checking admin status:', error);
-    res.status(500).json({ 
-      error: 'Failed to check admin status',
-      message: error.message 
-    });
+    res.json({ success: true, isAdmin });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to check admin status", message: err.message });
   }
 });
 
-module.exports = router;
+export default router;

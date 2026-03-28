@@ -24,12 +24,19 @@ const AdminUserButton = ({ isAdmin, afterSignOutUrl = "/" }) => {
           },
         }}
       />
-      {isAdmin && (
+      {isAdmin ? (
         <button
           onClick={() => navigate("/admin/dashboard")}
           className="nav-body flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-white text-[10px] font-bold transition-all shadow-md whitespace-nowrap"
         >
           <LayoutDashboard size={10} /> Admin
+        </button>
+      ) : (
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="nav-body flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-700 hover:bg-stone-600 text-stone-300 hover:text-white text-[10px] font-semibold transition-all whitespace-nowrap"
+        >
+          My Trips
         </button>
       )}
     </div>
@@ -54,7 +61,6 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Redirect admins to dashboard after sign-in
   useEffect(() => {
     if (isSignedIn && !isLoading && isAdmin) {
       navigate("/admin/dashboard", { replace: true });
@@ -279,12 +285,19 @@ const Navbar = () => {
                 />
                 <div className="flex flex-col gap-1">
                   <span className="text-stone-400 text-xs">Manage account</span>
-                  {isAdmin && (
+                  {isAdmin ? (
                     <button
                       onClick={() => { navigate("/admin/dashboard"); setMobileOpen(false); }}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold transition-all w-fit"
                     >
                       <LayoutDashboard size={11} /> Admin Dashboard
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => { navigate("/dashboard"); setMobileOpen(false); }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-700 hover:bg-stone-600 text-stone-300 hover:text-white text-xs font-semibold transition-all w-fit"
+                    >
+                      <LayoutDashboard size={11} /> My Dashboard
                     </button>
                   )}
                 </div>

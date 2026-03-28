@@ -4,9 +4,15 @@ import mongoose from "mongoose";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
 
-import userRoutes    from "./routes/userRoutes.js";
-import packageRoutes from "./routes/packageRoutes.js";
-import inquiryRoutes from "./routes/inquiryRoutes.js";
+import userRoutes          from "./routes/userRoutes.js";
+import packageRoutes       from "./routes/packageRoutes.js";
+import inquiryRoutes       from "./routes/inquiryRoutes.js";
+import bookingRoutes       from "./routes/bookingRoutes.js";
+import customQuoteRoutes   from "./routes/customQuoteRoutes.js";
+import tourDepartureRoutes from "./routes/tourDepartureRoutes.js";
+import teamRoutes          from "./routes/teamRoutes.js";
+import uploadRoutes        from "./routes/uploadRoutes.js";
+import settingsRoutes      from "./routes/settingsRoutes.js";
 
 const app = express();
 
@@ -16,14 +22,18 @@ app.use(cors({
 }));
 
 app.use(clerkMiddleware());
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/user",     userRoutes);
-app.use("/api/packages", packageRoutes);
-app.use("/api/inquiries", inquiryRoutes);
+app.use("/api/users",         userRoutes);
+app.use("/api/packages",      packageRoutes);
+app.use("/api/inquiries",     inquiryRoutes);
+app.use("/api/bookings",      bookingRoutes);
+app.use("/api/custom-quotes", customQuoteRoutes);
+app.use("/api/departures",    tourDepartureRoutes);
+app.use("/api/team",          teamRoutes);
+app.use("/api/upload",        uploadRoutes);
+app.use("/api/settings",      settingsRoutes);
 
 const connectDB = async () => {
   try {

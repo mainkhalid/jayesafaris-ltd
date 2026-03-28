@@ -105,7 +105,7 @@ const TopDestinations = () => {
 
       {/* Footer CTA */}
       <div className="flex justify-center mt-12">
-        <Link to="/inquiry-form">
+        <Link to="/request-quote">
           <button className="bg-dark-olive-2 text-white px-10 py-4 rounded-md font-bold hover:bg-dark-olive transition-transform hover:scale-105 shadow-md">
             Request Safari Quote
           </button>

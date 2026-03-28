@@ -3,8 +3,10 @@ import { kenyaData }    from "../data/kenyaData";
 import { tanzaniaData } from "../data/tanzaniaData";
 import { zanzibarData } from "../data/zanzibarData";
 import { ugandaData }   from "../data/ugandaData";
+import { useInquiries } from "../hooks/useInquiry";
+import { useAdminResource } from "../hooks/useAdminResource";
+import { useAdminDepartures } from "../hooks/useDepartures";
 
-// ─── Initial data ─────────────────────────────────────────────────────────────
 const INITIAL_COUNTRIES = {
   Kenya:    { hero: kenyaData.hero,    packages: kenyaData.topPackages.packages,    destinations: kenyaData.featuredDestinations },
   Tanzania: { hero: tanzaniaData.hero, packages: tanzaniaData.topPackages.packages, destinations: tanzaniaData.featuredDestinations },
@@ -12,65 +14,46 @@ const INITIAL_COUNTRIES = {
   Uganda:   { hero: ugandaData.hero,   packages: ugandaData.topPackages.packages,   destinations: ugandaData.featuredDestinations },
 };
 
-const INITIAL_INQUIRIES = [
-  {
-    id: 1,
-    name: "Sarah Mitchell",
-    email: "sarah@example.com",
-    phone: "+1 555 234 5678",
-    destination: "Kenya – Masai Mara",
-    dates: "2025-08-10 to 2025-08-17",
-    travelers: 2,
-    message: "We'd love a luxury tented camp experience with early morning game drives.",
-    status: "new",
-    submitted: "2025-02-14",
-  },
-  {
-    id: 2,
-    name: "James Oduya",
-    email: "james.o@gmail.com",
-    phone: "+44 7700 900123",
-    destination: "Uganda – Gorilla Trekking",
-    dates: "2025-07-01 to 2025-07-05",
-    travelers: 4,
-    message: "Family trip with teenagers. Need permits and lodge recommendations.",
-    status: "contacted",
-    submitted: "2025-02-13",
-  },
-  {
-    id: 3,
-    name: "Priya Nair",
-    email: "priya.nair@outlook.com",
-    phone: "+91 98765 43210",
-    destination: "Zanzibar – Beach Holiday",
-    dates: "2025-06-20 to 2025-06-27",
-    travelers: 2,
-    message: "Honeymoon package. Looking for private villa options near Nungwi.",
-    status: "resolved",
-    submitted: "2025-02-11",
-  },
-  {
-    id: 4,
-    name: "Tom Bergmann",
-    email: "tberg@mail.de",
-    phone: "+49 170 1234567",
-    destination: "Tanzania – Serengeti",
-    dates: "2025-09-15 to 2025-09-22",
-    travelers: 3,
-    message: "Interested in migration season timing and photography opportunities.",
-    status: "new",
-    submitted: "2025-02-15",
-  },
-];
-
-// ─── Context ──────────────────────────────────────────────────────────────────
 const AdminDataContext = createContext(null);
 
 export const AdminDataProvider = ({ children }) => {
-  const [countries, setCountries]   = useState(INITIAL_COUNTRIES);
-  const [inquiries, setInquiries]   = useState(INITIAL_INQUIRIES);
+  const [countries, setCountries] = useState(INITIAL_COUNTRIES);
 
-  /** Update a single field (hero | packages | destinations) for a country */
+  const {
+    inquiries,
+    stats: inquiryStats,
+    loading: inquiriesLoading,
+    updateInquiry,
+    deleteInquiry,
+  } = useInquiries();
+
+  const {
+    data: bookings,
+    stats: bookingStats,
+    loading: bookingsLoading,
+    updateResource: updateBooking,
+    deleteResource: deleteBooking,
+  } = useAdminResource("bookings");
+
+  const {
+    data: customQuotes,
+    stats: customQuoteStats,
+    loading: customQuotesLoading,
+    updateResource: updateCustomQuote,
+    deleteResource: deleteCustomQuote,
+  } = useAdminResource("custom-quotes");
+
+  // ── Departures ──────────────────────────────────────────────────────────
+  const {
+    departures,
+    stats: departureStats,
+    loading: departuresLoading,
+    createDeparture,
+    updateDeparture,
+    deleteDeparture,
+    refetch: refetchDepartures,
+  } = useAdminDepartures();
+
   const updateCountryData = (country, field, value) => {
     setCountries((prev) => ({
       ...prev,
@@ -78,16 +61,16 @@ export const AdminDataProvider = ({ children }) => {
     }));
   };
 
-  /** Update the status of a single inquiry */
-  const updateInquiryStatus = (id, status) => {
-    setInquiries((prev) =>
-      prev.map((inq) => (inq.id === id ? { ...inq, status } : inq))
-    );
-  };
-
   return (
     <AdminDataContext.Provider
-      value={{ countries, inquiries, updateCountryData, updateInquiryStatus }}
+      value={{
+        countries,
+        inquiries,    inquiryStats,    inquiriesLoading,    updateInquiry,    deleteInquiry,
+        bookings,     bookingStats,    bookingsLoading,     updateBooking,    deleteBooking,
+        customQuotes, customQuoteStats, customQuotesLoading, updateCustomQuote, deleteCustomQuote,
+        departures,   departureStats,  departuresLoading,   createDeparture,  updateDeparture, deleteDeparture, refetchDepartures,
+        updateCountryData,
+      }}
     >
       {children}
     </AdminDataContext.Provider>
